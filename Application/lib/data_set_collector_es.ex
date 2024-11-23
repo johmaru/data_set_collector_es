@@ -38,8 +38,54 @@ defmodule DataSetCollectorEs do
   end
 
   def main(args) do
-    IO.puts("Starting DataSetCollectorEs...")
+    IO.puts("DataSetCollectorEsを開始しました...")
     init()
+    show_menu()
+  end
+
+  def show_menu do
+    :io.setopts(:stdio, binary: true, echo: false)
+
+    options = [
+      "1. データセットを作成",
+      "2. データセットをロード",
+      "3. データセットの保存場所を変更",
+      "4. 終了"
+    ]
+
+    Enum.each(options, &IO.puts/1)
+    selection = IO.gets("番号を入力してください: ")
+    handle_selection(String.trim(selection))
+  end
+
+  def handle_selection("1") do
+    CreateDataSet.create_data_set()
+  end
+
+  def handle_selection("2") do
+    IO.puts("読み込み中")
+  end
+
+  def handle_selection("3") do
+    IO.puts("データパスを変更します")
+    new_data_path = IO.gets("新しいデータパスを入力してください 例(c:/data): ")
+    update_settings(%{"data_path" => String.trim(new_data_path)})
+    IO.puts("データパスを変更しました")
+    LogManage.log("Changed data path to #{new_data_path}", elem(@log_level, 0))
+    IO.puts("\n\n")
+    show_menu()
+  end
+
+  def handle_selection("4") do
+    IO.puts("終了します")
+    LogManage.log("Exiting DataSetCollectorEs", elem(@log_level, 0))
+    System.halt(0)
+  end
+
+  def handle_selection(_) do
+    IO.puts("無効な選択です")
+    IO.puts("\n\n")
+    show_menu()
   end
 
   def loading_task(task) do
@@ -65,7 +111,7 @@ defmodule DataSetCollectorEs do
         Enum.reduce_while(Stream.cycle(1..8), 0, fn i, acc ->
           IO.write("\r")
           loading_char = Enum.at(loading_chars, rem(i - 1, 8))
-          IO.write("#{loading_char} Initializing data collection... ")
+          IO.write("#{loading_char} データコレクションを初期化中... ")
           Process.sleep(100)
           {:cont, acc + 1}
         end)
