@@ -15,6 +15,12 @@ defmodule LogManage do
       IO.puts("Warning : Log file not found for #{time}.")
     end
 
-    File.write("logs/#{time}.log", "[#{level}] #{file}:#{line} : #{msg}\n", [:append])
+    get_time =
+      DateTime.utc_now()
+      |> Calendar.strftime("%Y-%m-%d %H:%M:%S")
+
+    File.write("logs/#{time}.log", "[#{get_time}] [#{level}] #{file}:#{line} : #{msg}\n", [
+      :append
+    ])
   end
 end
